@@ -24,29 +24,36 @@ DallasTemperature sensors(&oneWire);
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 correct_address = 0;
 PCF8583 p (0xA0);
-int lLvl; 
+int lLvl;
+int buttPin = 8;
+int backlightPin = 9;
 void setup() {
   // set up the LCD's number of columns and rows: 
   lcd.begin(16, 4);
   // Print a message to the LCD.
-  pinMode(8, INPUT_PULLUP);
-  pinMode(9,OUTPUT);
-  digitalWrite(9,HIGH);
+  pinMode(buttPin, INPUT_PULLUP);
+  pinMode(backlightPin, OUTPUT);
+  digitalWrite(backlightPin, HIGH);
   Serial.begin(9600);
   sensors.begin();
 }
 
 void loop() {
   p.get_time();
+  sensors.requestTemperatures();
   lLvl = map(analogRead(A0), 0, 1023, 0, 255);
-  if (digitalRead(8) == LOW && lLvl <= 240) {
+  if (digitalRead(buttPin) == LOW && lLvl <= 240) {
     digitalWrite(9, HIGH);
+    char time[50];
     for (int i=0;i<6;i++) {
-      char time[50];
       p.get_time();
+      sensors.requestTemperatures();
       sprintf(time, "%02d:%02d:%02d",
       p.hour, p.minute, p.second);
+      lcd.setCursor(0,0);
       lcd.print(time);
+      lcd.setCursor(-4,2);
+      lcd.print(sensors.getTempByIndex(0));
       delay(1000);
       lcd.clear();
     }
