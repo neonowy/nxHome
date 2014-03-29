@@ -18,9 +18,13 @@
 #include "OneWire.h"
 #include "DallasTemperature.h"
 
-int correct_address = 0;
+#define ONE_WIRE_BUS 2
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+correct_address = 0;
 PCF8583 p (0xA0);
-int lLvl;
+int lLvl; 
 void setup() {
   // set up the LCD's number of columns and rows: 
   lcd.begin(16, 4);
@@ -29,18 +33,19 @@ void setup() {
   pinMode(9,OUTPUT);
   digitalWrite(9,HIGH);
   Serial.begin(9600);
+  sensors.begin();
 }
 
 void loop() {
   p.get_time();
   lLvl = map(analogRead(A0), 0, 1023, 0, 255);
-  if (digitalRead(8) == LOW) {
+  if (digitalRead(8) == LOW && lLvl <= 240) {
     digitalWrite(9, HIGH);
     for (int i=0;i<6;i++) {
       char time[50];
       p.get_time();
       sprintf(time, "%02d:%02d:%02d",
-	  p.hour, p.minute, p.second);
+      p.hour, p.minute, p.second);
       lcd.print(time);
       delay(1000);
       lcd.clear();
