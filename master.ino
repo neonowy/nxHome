@@ -15,8 +15,8 @@
 #include <Wire.h>
 #include <PCF8583.h>
 #include <LiquidCrystal.h>
-#include "OneWire.h"
-#include "DallasTemperature.h"
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #define ONE_WIRE_BUS 2
 OneWire oneWire(ONE_WIRE_BUS);
