@@ -22,7 +22,7 @@
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
-correct_address = 0;
+int correct_address = 0;
 PCF8583 p (0xA0);
 int lLvl;
 int buttPin = 8;
@@ -53,7 +53,7 @@ void loop() {
       lcd.setCursor(0,0);
       lcd.print(time);
       lcd.setCursor(-4,2);
-      lcd.print(sensors.getTempByIndex(0));
+      lcd.print(sensors.getTempCByIndex(0));
       delay(1000);
       lcd.clear();
     }
