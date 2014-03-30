@@ -18,7 +18,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-#define ONE_WIRE_BUS 2
+#define ONE_WIRE_BUS 7
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
@@ -42,12 +42,14 @@ void loop() {
   p.get_time();
   sensors.requestTemperatures();
   lLvl = map(analogRead(A0), 0, 1023, 0, 255);
+
   if (digitalRead(buttPin) == LOW && lLvl <= 240) {
     digitalWrite(9, HIGH);
     char time[50];
     for (int i=0;i<6;i++) {
       p.get_time();
       sensors.requestTemperatures();
+
       sprintf(time, "%02d:%02d:%02d",
       p.hour, p.minute, p.second);
       lcd.setCursor(0,0);
