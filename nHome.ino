@@ -21,6 +21,7 @@ int BuzzPin = 13;
 int BacklightPin = 3;
 int LDRpin = A0;
 int letters = 0;
+int beepsCounter = 0;
 String message;
 byte bell[8] = {
         B00100,
@@ -170,12 +171,19 @@ void receive() {
 }
 
 void reloadBell() {
-	if (message == "lette" || message == "letter") {
+	if (message == "lette" && beepsCounter < 3 || message == "letter" && beepsCounter < 3) {
 		lcd.write(byte(0));
 		Serial.println("foo!");
 		digitalWrite(BuzzPin, HIGH);
-	} else {
+		delay(500);
+		digitalWrite(BuzzPin, LOW);
+		beepsCounter++;
+		Serial.println(beepsCounter);
+	} else if (message == "empty") {
 		lcd.print(" ");
+		digitalWrite(BuzzPin, LOW);
+		beepsCounter = 0;
+	} else {
 		digitalWrite(BuzzPin, LOW);
 	}
 }
@@ -207,5 +215,5 @@ void loop() {
     printHome();
     receive();
     Serial.print(message);
-    delay(1000);
+    delay(500);
 }
