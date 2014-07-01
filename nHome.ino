@@ -1,20 +1,27 @@
 #include <Wire.h>
 #include <PCF8583.h>
+#include <studio.h>
 #include <LiquidCrystal.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <studio.h>
+#include <VirtualWire.h>
+
 
 #define ONE_WIRE_BUS 7
+uint8_t buf[VW_MAX_MESSAGE_LEN];
+uint8_t bufLen = VW_MAX_MESSAGE_LEN;
+
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 int correct_address = 0;
-LiquidCrystal lcd(12, 6, 5, 4, 3, 2);
+LiquidCrystal lcd(12, 6, 5, 4, 10, 2);
 PCF8583 p (0xA0);
 int ButtPin = 8;
-int BacklightPin = 9;
+int BuzzPin = 13;
+int BacklightPin = 3;
 int LDRpin = A0;
-
+int letters = 0;
+String message;
 byte bell[8] = {
         B00100,
         B01110,
@@ -82,7 +89,7 @@ char* getDate(PCF8583 p) {
 // Return: Day of week in char array
 char* getDayOfWeek(PCF8583 p) {
     p.get_time();
-    int dayOfWeek = p.day;
+    int dayOfWeek = p.get_day_of_week();
     switch(dayOfWeek) {
     case 1:
         return "Poniedzialek";
@@ -143,35 +150,62 @@ void printHome() {
     lcd.setCursor(-4,2);
     lcd.print(getDayOfWeek(p));
     lcd.setCursor(15,0);
-    lcd.write(byte(0));
+    reloadBell();
     lcd.setCursor(-4,3);
     sensors.requestTemperatures(); 
     lcd.print(sensors.getTempCByIndex(0));
     lcd.setCursor(0,3);
     lcd.write(byte(1));
-    
+    lcd.print("C");
+}
+
+void receive() {
+	if (vw_get_message(buf, &bufLen)) {
+		message = "";
+		for(int i = 0; i < bufLen; i++) {
+			message += char(buf[i]);
+		}
+		
+	}
+}
+
+void reloadBell() {
+	if (message == "lette" || message == "letter") {
+		lcd.write(byte(0));
+		Serial.println("foo!");
+		digitalWrite(BuzzPin, HIGH);
+	} else {
+		lcd.print(" ");
+		digitalWrite(BuzzPin, LOW);
+	}
 }
 
 void setup() {
-  // set up the LCD's number of columns and rows:
-  lcd.begin(16, 4);
-  pinMode(ButtPin, INPUT_PULLUP);
-  pinMode(BacklightPin, OUTPUT);
-  pinMode(LDRpin, INPUT);
-  digitalWrite(BacklightPin, HIGH);
-  sensors.begin(); 
-     
-  lcd.createChar(0, bell);  
-  lcd.createChar(1, degree);        
-        
-  Serial.begin(9600);
-  sensors.begin();
-  greetings();
-  lcd.clear();
+	vw_set_ptt_inverted(true); // Required for DR3100
+    vw_setup(2000);	 // Bits per sec
+    vw_rx_start();
+	// set up the LCD's number of columns and rows:
+  	lcd.begin(16, 4);
+	pinMode(ButtPin, INPUT_PULLUP);
+	pinMode(BacklightPin, OUTPUT);
+	pinMode(LDRpin, INPUT);
+	pinMode(BuzzPin, OUTPUT);
+	digitalWrite(BacklightPin, HIGH);
+	sensors.begin(); 
+	sensors.setResolution(9);  
+	lcd.createChar(0, bell);  
+	lcd.createChar(1, degree);        
+	    
+	Serial.begin(9600);
+	sensors.begin();
+	greetings();
+	lcd.clear();
 }
 
 void loop() {
     setBacklight(LDRpin, ButtPin, BacklightPin, 240, 210);
     printHome();
+    receive();
+    Serial.print(message);
     delay(1000);
 }
