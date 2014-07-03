@@ -1,7 +1,7 @@
-nHome
+nxHome
 =====
 
-nHome is another room "automation" system based on Arduino.
+nxHome is another room "automation" system based on Arduino.
 
 ##Required libraries
 - [PCF8583](https://github.com/edebill/PCF8583)
