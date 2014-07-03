@@ -1,6 +1,6 @@
 #include <Wire.h>
 #include <PCF8583.h>
-#include <studio.h>
+#include <stdio.h>
 #include <LiquidCrystal.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -9,10 +9,10 @@
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 int correct_address = 0;
-LiquidCrystal lcd(12, 6, 5, 4, 10, 2);
+LiquidCrystal lcd(12, 11, 5, 6, 3, 2);
 PCF8583 p (0xA0);
 int ButtPin = 8;
-int BacklightPin = 3;
+int BacklightPin = 4;
 int LDRpin = A0;
 
 
